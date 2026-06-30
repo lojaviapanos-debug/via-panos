@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Via Panos - Utilidades Domesticas</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; }
+    header { background: #2c7a4b; color: white; padding: 20px; text-align: center; }
+    header h1 { font-size: 28px; }
+    header p { font-size: 14px; opacity: 0.85; }
+    .container { max-width: 700px; margin: 30px auto; padding: 0 16px; }
+    .card { background: white; border-radius: 10px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    h2 { font-size: 18px; margin-bottom: 16px; color: #2c7a4b; }
+    label { display: block; font-size: 13px; margin-bottom: 4px; color: #555; }
+    input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }
+    .row { display: flex; gap: 12px; }
+    .row > div { flex: 1; }
+    .produto { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+    .produto label { margin: 0; font-size: 14px; }
+    .produto input[type=number] { width: 60px; text-align: center; margin: 0; }
+    button[type=submit] { width: 100%; padding: 14px; background: #2c7a4b; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    button[type=submit]:hover { background: #235f3a; }
+    #mensagem { text-align: center; margin-top: 20px; font-size: 15px; padding: 12px; border-radius: 6px; display: none; }
+    .sucesso { background: #d4edda; color: #155724; }
+    .erro { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Via Panos</h1>
+  <p>Cama - Mesa - Banho - Qualidade para sua casa</p>
+</header>
+<div class="container">
+  <form id="formPedido">
+    <div class="card">
+      <h2>Seus Dados</h2>
+      <label>Nome completo</label>
+      <input type="text" id="nome" required placeholder="Maria Silva">
+      <label>E-mail</label>
+      <input type="email" id="email" required placeholder="maria@email.com">
+      <label>Telefone / WhatsApp</label>
+      <input type="tel" id="telefone" placeholder="(11) 99999-9999">
+    </div>
+    <div class="card">
+      <h2>Endereco de Entrega</h2>
+      <label>CEP</label>
+      <input type="text" id="cep" placeholder="00000-000" maxlength="9">
+      <div class="row">
+        <div>
+          <label>Rua</label>
+          <input type="text" id="rua" placeholder="Rua das Flores">
+        </div>
+        <div style="max-width:100px">
+          <label>Numero</label>
+          <input type="text" id="numero" placeholder="123">
+        </div>
+      </div>
+      <label>Complemento</label>
+      <input type="text" id="complemento" placeholder="Apto 4B (opcional)">
+      <div class="row">
+        <div>
+          <label>Bairro</label>
+          <input type="text" id="bairro" placeholder="Centro">
+        </div>
+        <div>
+          <label>Cidade</label>
+          <input type="text" id="cidade" placeholder="Sao Paulo">
+        </div>
+        <div style="max-width:80px">
+          <label>Estado</label>
+          <input type="text" id="estado" placeholder="SP" maxlength="2">
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Produtos</h2>
+      <div class="produto">
+        <label>Jogo de Cama Casal (R$ 89,90)</label>
+        <input type="number" min="0" value="0" data-id="1" data-preco="89.90" data-nome="Jogo de Cama Casal">
+      </div>
+      <div class="produto">
+        <label>Jogo de Toalhas (R$ 59,90)</label>
+        <input type="number" min="0" value="0" data-id="2" data-preco="59.90" data-nome="Jogo de Toalhas">
+      </div>
+      <div class="produto">
+        <label>Toalha de Mesa 6 Lugares (R$ 49,90)</label>
+        <input type="number" min="0" value="0" data-id="3" data-preco="49.90" data-nome="Toalha de Mesa 6 Lugares">
+      </div>
+      <div class="produto">
+        <label>Jogo de Lencol Solteiro (R$ 69,90)</label>
+        <input type="number" min="0" value="0" data-id="4" data-preco="69.90" data-nome="Jogo de Lencol Solteiro">
+      </div>
+      <div class="produto">
+        <label>Edredom Queen (R$ 129,90)</label>
+        <input type="number" min="0" value="0" data-id="5" data-preco="129.90" data-nome="Edredom Queen">
+      </div>
+    </div>
+    <div class="card">
+      <h2>Pagamento e Frete</h2>
+      <label>Forma de Pagamento</label>
+      <select id="pagamento">
+        <option value="pix">PIX</option>
+        <option value="boleto">Boleto Bancario</option>
+        <option value="credit_card">Cartao de Credito</option>
+      </select>
+      <label>Frete estimado (R$)</label>
+      <input type="number" id="frete" value="15.00" min="0" step="0.01">
+    </div>
+    <button type="submit">Confirmar Pedido</button>
+  </form>
+  <div id="mensagem"></div>
+</div>
+<script>
+  document.getElementById('formPedido').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const itens = [];
+    document.querySelectorAll('.produto input[type=number]').forEach(input => {
+      const qty = parseInt(input.value);
+      if (qty > 0) {
+        itens.push({ id: input.dataset.id, nome: input.dataset.nome, quantidade: qty, preco: parseFloat(input.dataset.preco) });
+      }
+    });
+    if (itens.length === 0) { mostrarMensagem('Adicione pelo menos um produto ao pedido.', false); return; }
+    const pedido = {
+      cliente: {
+        nome: document.getElementById('nome').value,
+        email: document.getElementById('email').value,
+        telefone: document.getElementById('telefone').value,
+        cep: document.getElementById('cep').value,
+        rua: document.getElementById('rua').value,
+        numero: document.getElementById('numero').value,
+        complemento: document.getElementById('complemento').value,
+        bairro: document.getElementById('bairro').value,
+        cidade: document.getElementById('cidade').value,
+        estado: document.getElementById('estado').value,
+      },
+      itens,
+      pagamento: document.getElementById('pagamento').value,
+      frete: parseFloat(document.getElementById('frete').value),
+    };
+    try {
+      const resp = await fetch('/pedido', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pedido) });
+      const data = await resp.json();
+      if (data.sucesso) { mostrarMensagem('Pedido criado com sucesso! Numero: ' + data.pedido_id, true); document.getElementById('formPedido').reset(); }
+      else { mostrarMensagem('Erro ao enviar pedido. Tente novamente.', false); }
+    } catch { mostrarMensagem('Erro de conexao. Tente novamente.', false); }
+  });
+  function mostrarMensagem(texto, sucesso) {
+    const el = document.getElementById('mensagem');
+    el.textContent = texto;
+    el.className = sucesso ? 'sucesso' : 'erro';
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
