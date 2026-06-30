@@ -3,157 +3,360 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Via Panos - Utilidades Domesticas</title>
+  <title>Via Panos - Catalogo</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; }
-    header { background: #2c7a4b; color: white; padding: 20px; text-align: center; }
-    header h1 { font-size: 28px; }
-    header p { font-size: 14px; opacity: 0.85; }
-    .container { max-width: 700px; margin: 30px auto; padding: 0 16px; }
-    .card { background: white; border-radius: 10px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    h2 { font-size: 18px; margin-bottom: 16px; color: #2c7a4b; }
-    label { display: block; font-size: 13px; margin-bottom: 4px; color: #555; }
-    input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }
-    .row { display: flex; gap: 12px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #111; }
+
+    /* HEADER */
+    .header { background: #075e54; color: white; padding: 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .header-top { display: flex; align-items: center; padding: 12px 16px; gap: 14px; }
+    .header-logo { width: 44px; height: 44px; border-radius: 50%; background: #25d366; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; flex-shrink: 0; }
+    .header-info h1 { font-size: 17px; font-weight: 600; }
+    .header-info p { font-size: 12px; opacity: 0.8; margin-top: 1px; }
+    .header-badge { margin-left: auto; background: #25d366; color: white; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 600; white-space: nowrap; }
+
+    /* NAV CATEGORIAS */
+    .cat-nav { background: #075e54; display: flex; gap: 0; overflow-x: auto; border-top: 1px solid rgba(255,255,255,0.1); scrollbar-width: none; }
+    .cat-nav::-webkit-scrollbar { display: none; }
+    .cat-btn { background: none; border: none; color: rgba(255,255,255,0.7); padding: 10px 18px; font-size: 13px; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .cat-btn.active, .cat-btn:hover { color: white; border-bottom-color: #25d366; }
+
+    /* CARRINHO FLUTUANTE */
+    .cart-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #25d366; color: white; padding: 14px 20px; z-index: 200; flex-direction: row; align-items: center; justify-content: space-between; box-shadow: 0 -2px 12px rgba(0,0,0,0.2); }
+    .cart-bar.visible { display: flex; }
+    .cart-bar-left { font-size: 14px; font-weight: 500; }
+    .cart-bar-left span { font-size: 18px; font-weight: 700; display: block; }
+    .cart-bar-btn { background: white; color: #075e54; border: none; padding: 10px 24px; border-radius: 20px; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+    /* CATALOGO */
+    .main { max-width: 900px; margin: 0 auto; padding: 16px 12px 100px; }
+    .section-title { font-size: 13px; font-weight: 600; color: #075e54; text-transform: uppercase; letter-spacing: 0.5px; margin: 20px 0 12px; padding-left: 4px; border-left: 3px solid #25d366; padding-left: 10px; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+
+    /* CARD PRODUTO */
+    .product-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: transform 0.15s, box-shadow 0.15s; cursor: pointer; }
+    .product-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .product-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #f0f2f5; display: block; }
+    .product-img-placeholder { width: 100%; aspect-ratio: 1; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); display: flex; align-items: center; justify-content: center; font-size: 48px; }
+    .product-info { padding: 10px; }
+    .product-name { font-size: 13px; font-weight: 600; color: #111; line-height: 1.3; margin-bottom: 4px; }
+    .product-desc { font-size: 11px; color: #666; line-height: 1.4; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .product-price { font-size: 15px; font-weight: 700; color: #075e54; }
+    .product-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+    .qty-control { display: flex; align-items: center; gap: 6px; }
+    .qty-btn { width: 26px; height: 26px; border-radius: 50%; border: none; background: #075e54; color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; flex-shrink: 0; }
+    .qty-btn:hover { background: #064a42; }
+    .qty-display { font-size: 14px; font-weight: 600; min-width: 18px; text-align: center; }
+    .add-btn { background: #25d366; color: white; border: none; border-radius: 16px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .add-btn:hover { background: #1da851; }
+
+    /* MODAL PRODUTO */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; align-items: flex-end; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: white; border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; margin: 0 auto; max-height: 90vh; overflow-y: auto; padding-bottom: 20px; }
+    .modal-img { width: 100%; max-height: 280px; object-fit: cover; background: #f0f2f5; }
+    .modal-img-placeholder { width: 100%; height: 200px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); display: flex; align-items: center; justify-content: center; font-size: 80px; }
+    .modal-close { position: absolute; top: 12px; right: 16px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-content { padding: 16px 20px; }
+    .modal-name { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .modal-price { font-size: 22px; font-weight: 700; color: #075e54; margin-bottom: 12px; }
+    .modal-desc { font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 20px; }
+    .modal-footer { display: flex; align-items: center; gap: 16px; }
+    .modal-qty { display: flex; align-items: center; gap: 12px; }
+    .modal-qty-btn { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #075e54; background: white; color: #075e54; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-qty-num { font-size: 18px; font-weight: 700; min-width: 24px; text-align: center; }
+    .modal-add-btn { flex: 1; background: #25d366; color: white; border: none; border-radius: 20px; padding: 12px; font-size: 15px; font-weight: 700; cursor: pointer; }
+
+    /* CHECKOUT */
+    .checkout-section { display: none; background: white; border-radius: 12px; padding: 20px; margin-top: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .checkout-section.visible { display: block; }
+    .checkout-title { font-size: 16px; font-weight: 700; color: #075e54; margin-bottom: 16px; border-bottom: 1px solid #f0f2f5; padding-bottom: 10px; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+    .cart-item-name { font-size: 14px; font-weight: 500; }
+    .cart-item-sub { font-size: 12px; color: #888; }
+    .cart-item-price { font-size: 14px; font-weight: 700; color: #075e54; }
+    .cart-total { display: flex; justify-content: space-between; padding: 14px 0 0; font-size: 16px; font-weight: 700; }
+    label { display: block; font-size: 13px; margin-bottom: 4px; color: #555; margin-top: 12px; }
+    input, select { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
+    input:focus, select:focus { border-color: #25d366; box-shadow: 0 0 0 2px rgba(37,211,102,0.15); }
+    .row { display: flex; gap: 10px; }
     .row > div { flex: 1; }
-    .produto { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-    .produto label { margin: 0; font-size: 14px; }
-    .produto input[type=number] { width: 60px; text-align: center; margin: 0; }
-    button[type=submit] { width: 100%; padding: 14px; background: #2c7a4b; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
-    button[type=submit]:hover { background: #235f3a; }
-    #mensagem { text-align: center; margin-top: 20px; font-size: 15px; padding: 12px; border-radius: 6px; display: none; }
+    .confirm-btn { width: 100%; background: #25d366; color: white; border: none; border-radius: 24px; padding: 15px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .confirm-btn:hover { background: #1da851; }
+    #mensagem { text-align: center; margin-top: 16px; font-size: 14px; padding: 12px; border-radius: 8px; display: none; }
     .sucesso { background: #d4edda; color: #155724; }
     .erro { background: #f8d7da; color: #721c24; }
   </style>
 </head>
 <body>
-<header>
-  <h1>Via Panos</h1>
-  <p>Cama - Mesa - Banho - Qualidade para sua casa</p>
-</header>
-<div class="container">
-  <form id="formPedido">
-    <div class="card">
-      <h2>Seus Dados</h2>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="header-logo">VP</div>
+    <div class="header-info">
+      <h1>Via Panos</h1>
+      <p>Cama, Mesa e Banho</p>
+    </div>
+    <span class="header-badge">Catalogo Online</span>
+  </div>
+  <div class="cat-nav">
+    <button class="cat-btn active" onclick="filtrar('todos')">Todos</button>
+    <button class="cat-btn" onclick="filtrar('cama')">Cama</button>
+    <button class="cat-btn" onclick="filtrar('banho')">Banho</button>
+    <button class="cat-btn" onclick="filtrar('mesa')">Mesa</button>
+  </div>
+</div>
+
+<!-- CATALOGO -->
+<div class="main">
+  <div class="section-title" id="sec-cama">Cama</div>
+  <div class="products-grid" id="grid-cama"></div>
+  <div class="section-title" id="sec-banho" style="margin-top:24px">Banho</div>
+  <div class="products-grid" id="grid-banho"></div>
+  <div class="section-title" id="sec-mesa" style="margin-top:24px">Mesa</div>
+  <div class="products-grid" id="grid-mesa"></div>
+
+  <!-- CHECKOUT -->
+  <div class="checkout-section" id="checkout">
+    <div class="checkout-title">Seu Pedido</div>
+    <div id="cart-items-list"></div>
+    <div class="cart-total"><span>Total</span><span id="cart-total-val">R$ 0,00</span></div>
+
+    <div style="margin-top:20px;border-top:1px solid #f0f2f5;padding-top:16px">
+      <div class="checkout-title">Seus Dados</div>
       <label>Nome completo</label>
-      <input type="text" id="nome" required placeholder="Maria Silva">
+      <input type="text" id="nome" placeholder="Maria Silva" required>
       <label>E-mail</label>
-      <input type="email" id="email" required placeholder="maria@email.com">
+      <input type="email" id="email" placeholder="maria@email.com" required>
       <label>Telefone / WhatsApp</label>
       <input type="tel" id="telefone" placeholder="(11) 99999-9999">
     </div>
-    <div class="card">
-      <h2>Endereco de Entrega</h2>
+
+    <div style="margin-top:16px;border-top:1px solid #f0f2f5;padding-top:16px">
+      <div class="checkout-title">Entrega</div>
       <label>CEP</label>
       <input type="text" id="cep" placeholder="00000-000" maxlength="9">
       <div class="row">
-        <div>
-          <label>Rua</label>
-          <input type="text" id="rua" placeholder="Rua das Flores">
-        </div>
-        <div style="max-width:100px">
-          <label>Numero</label>
-          <input type="text" id="numero" placeholder="123">
-        </div>
+        <div><label>Rua</label><input type="text" id="rua" placeholder="Rua das Flores"></div>
+        <div style="max-width:90px"><label>Numero</label><input type="text" id="numero" placeholder="123"></div>
       </div>
       <label>Complemento</label>
-      <input type="text" id="complemento" placeholder="Apto 4B (opcional)">
+      <input type="text" id="complemento" placeholder="Apto (opcional)">
       <div class="row">
-        <div>
-          <label>Bairro</label>
-          <input type="text" id="bairro" placeholder="Centro">
-        </div>
-        <div>
-          <label>Cidade</label>
-          <input type="text" id="cidade" placeholder="Sao Paulo">
-        </div>
-        <div style="max-width:80px">
-          <label>Estado</label>
-          <input type="text" id="estado" placeholder="SP" maxlength="2">
-        </div>
+        <div><label>Bairro</label><input type="text" id="bairro" placeholder="Centro"></div>
+        <div><label>Cidade</label><input type="text" id="cidade" placeholder="Sao Paulo"></div>
+        <div style="max-width:70px"><label>UF</label><input type="text" id="estado" placeholder="SP" maxlength="2"></div>
       </div>
-    </div>
-    <div class="card">
-      <h2>Produtos</h2>
-      <div class="produto">
-        <label>Jogo de Cama Casal (R$ 89,90)</label>
-        <input type="number" min="0" value="0" data-id="1" data-preco="89.90" data-nome="Jogo de Cama Casal">
-      </div>
-      <div class="produto">
-        <label>Jogo de Toalhas (R$ 59,90)</label>
-        <input type="number" min="0" value="0" data-id="2" data-preco="59.90" data-nome="Jogo de Toalhas">
-      </div>
-      <div class="produto">
-        <label>Toalha de Mesa 6 Lugares (R$ 49,90)</label>
-        <input type="number" min="0" value="0" data-id="3" data-preco="49.90" data-nome="Toalha de Mesa 6 Lugares">
-      </div>
-      <div class="produto">
-        <label>Jogo de Lencol Solteiro (R$ 69,90)</label>
-        <input type="number" min="0" value="0" data-id="4" data-preco="69.90" data-nome="Jogo de Lencol Solteiro">
-      </div>
-      <div class="produto">
-        <label>Edredom Queen (R$ 129,90)</label>
-        <input type="number" min="0" value="0" data-id="5" data-preco="129.90" data-nome="Edredom Queen">
-      </div>
-    </div>
-    <div class="card">
-      <h2>Pagamento e Frete</h2>
       <label>Forma de Pagamento</label>
       <select id="pagamento">
         <option value="pix">PIX</option>
         <option value="boleto">Boleto Bancario</option>
         <option value="credit_card">Cartao de Credito</option>
       </select>
-      <label>Frete estimado (R$)</label>
+      <label>Frete (R$)</label>
       <input type="number" id="frete" value="15.00" min="0" step="0.01">
     </div>
-    <button type="submit">Confirmar Pedido</button>
-  </form>
-  <div id="mensagem"></div>
+
+    <button class="confirm-btn" onclick="confirmarPedido()">Confirmar Pedido</button>
+    <div id="mensagem"></div>
+  </div>
 </div>
+
+<!-- MODAL PRODUTO -->
+<div class="modal-overlay" id="modal" onclick="fecharModal(event)">
+  <div class="modal-box" style="position:relative">
+    <button class="modal-close" onclick="fecharModalBtn()">x</button>
+    <div id="modal-img-wrap"></div>
+    <div class="modal-content">
+      <div class="modal-name" id="modal-nome"></div>
+      <div class="modal-price" id="modal-preco"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="modal-footer">
+        <div class="modal-qty">
+          <button class="modal-qty-btn" onclick="modalQty(-1)">-</button>
+          <span class="modal-qty-num" id="modal-qty-num">1</span>
+          <button class="modal-qty-btn" onclick="modalQty(1)">+</button>
+        </div>
+        <button class="modal-add-btn" onclick="adicionarDoModal()">Adicionar ao Pedido</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BARRA CARRINHO -->
+<div class="cart-bar" id="cart-bar">
+  <div class="cart-bar-left">
+    <small id="cart-count">0 itens</small>
+    <span id="cart-total-bar">R$ 0,00</span>
+  </div>
+  <button class="cart-bar-btn" onclick="abrirCheckout()">Ver Pedido</button>
+</div>
+
 <script>
-  document.getElementById('formPedido').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const itens = [];
-    document.querySelectorAll('.produto input[type=number]').forEach(input => {
-      const qty = parseInt(input.value);
-      if (qty > 0) {
-        itens.push({ id: input.dataset.id, nome: input.dataset.nome, quantidade: qty, preco: parseFloat(input.dataset.preco) });
-      }
-    });
-    if (itens.length === 0) { mostrarMensagem('Adicione pelo menos um produto ao pedido.', false); return; }
-    const pedido = {
-      cliente: {
-        nome: document.getElementById('nome').value,
-        email: document.getElementById('email').value,
-        telefone: document.getElementById('telefone').value,
-        cep: document.getElementById('cep').value,
-        rua: document.getElementById('rua').value,
-        numero: document.getElementById('numero').value,
-        complemento: document.getElementById('complemento').value,
-        bairro: document.getElementById('bairro').value,
-        cidade: document.getElementById('cidade').value,
-        estado: document.getElementById('estado').value,
-      },
-      itens,
-      pagamento: document.getElementById('pagamento').value,
-      frete: parseFloat(document.getElementById('frete').value),
-    };
-    try {
-      const resp = await fetch('/pedido', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pedido) });
-      const data = await resp.json();
-      if (data.sucesso) { mostrarMensagem('Pedido criado com sucesso! Numero: ' + data.pedido_id, true); document.getElementById('formPedido').reset(); }
-      else { mostrarMensagem('Erro ao enviar pedido. Tente novamente.', false); }
-    } catch { mostrarMensagem('Erro de conexao. Tente novamente.', false); }
+const produtos = [
+  { id:1, cat:'cama', nome:'Jogo de Cama Casal', preco:89.90, emoji:'🛏️', desc:'Jogo de cama casal completo com 4 pecas. Tecido 100% algodao macio, disponivel em diversas cores. Inclui 1 lencol com elastico, 1 capa de edredom e 2 fronhas.' },
+  { id:2, cat:'cama', nome:'Jogo de Lencol Solteiro', preco:69.90, emoji:'🛏️', desc:'Jogo de lencol solteiro com 3 pecas. Tecido macio e duravel, ideal para camas de solteiro e bicama. Elastico reforçado que nao sai durante a noite.' },
+  { id:3, cat:'cama', nome:'Edredom Queen', preco:129.90, emoji:'🛌', desc:'Edredom queen size dupla face. Enchimento antialergico com fibra siliconada. Mantém o calor no inverno e e leve no verao. Maquina lavavel.' },
+  { id:4, cat:'cama', nome:'Travesseiro Fibra', preco:44.90, emoji:'😴', desc:'Travesseiro de fibra siliconada antialergico. Suporte ideal para pescoco e coluna. Capa removivel e lavavel. Ideal para dormir bem.' },
+  { id:5, cat:'banho', nome:'Jogo de Toalhas', preco:59.90, emoji:'🛁', desc:'Jogo com 4 toalhas: 2 de banho e 2 de rosto. Algodao 100% felpudo e super absorvente. Alta durabilidade, mantém a maciez mesmo apos varias lavagens.' },
+  { id:6, cat:'banho', nome:'Toalha de Banho Premium', preco:34.90, emoji:'🚿', desc:'Toalha de banho premium extra grande. Tecido felpudo de alta absorcao. Disponivel em diversas cores para combinar com seu banheiro.' },
+  { id:7, cat:'banho', nome:'Toalha de Rosto', preco:19.90, emoji:'🧖', desc:'Toalha de rosto macia e absorvente. Bordas reforcadas para maior durabilidade. Perfeita para uso diario, macia na pele.' },
+  { id:8, cat:'mesa', nome:'Toalha de Mesa 6 Lugares', preco:49.90, emoji:'🍽️', desc:'Toalha de mesa para 6 lugares. Tecido antinódoas facil de limpar. Disponivel em varios padroes e cores. Ideal para o dia a dia e ocasioes especiais.' },
+  { id:9, cat:'mesa', nome:'Jogo Americano 4 pecas', preco:29.90, emoji:'🥗', desc:'Jogo americano com 4 pecas. Material resistente ao calor e facil de limpar. Design moderno que valoriza sua mesa posta.' },
+  { id:10, cat:'mesa', nome:'Guardanapo de Tecido 6 un', preco:24.90, emoji:'🍴', desc:'Conjunto com 6 guardanapos de tecido. Elegantes e sustentaveis, substituem guardanapos de papel. Faceis de lavar e passar.' },
+];
+
+let carrinho = {};
+let modalProduto = null;
+let modalQtyVal = 1;
+
+function renderProdutos(lista) {
+  ['cama','banho','mesa'].forEach(cat => {
+    const grid = document.getElementById('grid-'+cat);
+    const sec = document.getElementById('sec-'+cat);
+    const filtrados = lista.filter(p => p.cat === cat);
+    sec.style.display = filtrados.length ? '' : 'none';
+    grid.innerHTML = filtrados.map(p => {
+      const qty = carrinho[p.id]?.qty || 0;
+      return `
+      <div class="product-card" onclick="abrirModal(${p.id})">
+        <div class="product-img-placeholder">${p.emoji}</div>
+        <div class="product-info">
+          <div class="product-name">${p.nome}</div>
+          <div class="product-desc">${p.desc}</div>
+          <div class="product-footer">
+            <div class="product-price">R$ ${p.preco.toFixed(2).replace('.',',')}</div>
+            ${qty > 0
+              ? `<div class="qty-control" onclick="event.stopPropagation()">
+                  <button class="qty-btn" onclick="altQty(${p.id},-1)">-</button>
+                  <span class="qty-display">${qty}</span>
+                  <button class="qty-btn" onclick="altQty(${p.id},1)">+</button>
+                </div>`
+              : `<button class="add-btn" onclick="event.stopPropagation();addToCart(${p.id},1)">Adicionar</button>`
+            }
+          </div>
+        </div>
+      </div>`;
+    }).join('');
   });
-  function mostrarMensagem(texto, sucesso) {
-    const el = document.getElementById('mensagem');
-    el.textContent = texto;
-    el.className = sucesso ? 'sucesso' : 'erro';
-    el.style.display = 'block';
-    el.scrollIntoView({ behavior: 'smooth' });
+}
+
+function filtrar(cat) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  const lista = cat === 'todos' ? produtos : produtos.filter(p => p.cat === cat);
+  renderProdutos(lista);
+}
+
+function addToCart(id, qty) {
+  const p = produtos.find(x => x.id === id);
+  if (!carrinho[id]) carrinho[id] = { produto: p, qty: 0 };
+  carrinho[id].qty += qty;
+  if (carrinho[id].qty <= 0) delete carrinho[id];
+  atualizarCarrinho();
+  renderProdutos(produtos);
+}
+
+function altQty(id, delta) {
+  addToCart(id, delta);
+}
+
+function atualizarCarrinho() {
+  const itens = Object.values(carrinho);
+  const total = itens.reduce((s, i) => s + i.produto.preco * i.qty, 0);
+  const count = itens.reduce((s, i) => s + i.qty, 0);
+  document.getElementById('cart-bar').classList.toggle('visible', count > 0);
+  document.getElementById('cart-count').textContent = count + (count === 1 ? ' item' : ' itens');
+  document.getElementById('cart-total-bar').textContent = 'R$ ' + total.toFixed(2).replace('.',',');
+  document.getElementById('cart-total-val').textContent = 'R$ ' + total.toFixed(2).replace('.',',');
+  const lista = document.getElementById('cart-items-list');
+  if (lista) {
+    lista.innerHTML = itens.map(i => `
+      <div class="cart-item">
+        <div><div class="cart-item-name">${i.produto.nome}</div><div class="cart-item-sub">${i.qty}x R$ ${i.produto.preco.toFixed(2).replace('.',',')}</div></div>
+        <div class="cart-item-price">R$ ${(i.produto.preco * i.qty).toFixed(2).replace('.',',')}</div>
+      </div>`).join('');
   }
+}
+
+function abrirModal(id) {
+  const p = produtos.find(x => x.id === id);
+  modalProduto = p;
+  modalQtyVal = carrinho[id]?.qty || 1;
+  document.getElementById('modal-nome').textContent = p.nome;
+  document.getElementById('modal-preco').textContent = 'R$ ' + p.preco.toFixed(2).replace('.',',');
+  document.getElementById('modal-desc').textContent = p.desc;
+  document.getElementById('modal-qty-num').textContent = modalQtyVal;
+  document.getElementById('modal-img-wrap').innerHTML = `<div class="modal-img-placeholder">${p.emoji}</div>`;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharModal(e) {
+  if (e.target === document.getElementById('modal')) fecharModalBtn();
+}
+function fecharModalBtn() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function modalQty(delta) {
+  modalQtyVal = Math.max(1, modalQtyVal + delta);
+  document.getElementById('modal-qty-num').textContent = modalQtyVal;
+}
+
+function adicionarDoModal() {
+  if (!modalProduto) return;
+  const atual = carrinho[modalProduto.id]?.qty || 0;
+  carrinho[modalProduto.id] = { produto: modalProduto, qty: modalQtyVal };
+  atualizarCarrinho();
+  renderProdutos(produtos);
+  fecharModalBtn();
+}
+
+function abrirCheckout() {
+  const co = document.getElementById('checkout');
+  co.classList.add('visible');
+  co.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function confirmarPedido() {
+  const itens = Object.values(carrinho);
+  if (itens.length === 0) { mostrarMensagem('Adicione produtos ao pedido.', false); return; }
+  const nome = document.getElementById('nome').value;
+  const email = document.getElementById('email').value;
+  if (!nome || !email) { mostrarMensagem('Preencha nome e e-mail.', false); return; }
+  const pedido = {
+    cliente: { nome, email, telefone: document.getElementById('telefone').value, cep: document.getElementById('cep').value, rua: document.getElementById('rua').value, numero: document.getElementById('numero').value, complemento: document.getElementById('complemento').value, bairro: document.getElementById('bairro').value, cidade: document.getElementById('cidade').value, estado: document.getElementById('estado').value },
+    itens: itens.map(i => ({ id: i.produto.id, nome: i.produto.nome, quantidade: i.qty, preco: i.produto.preco })),
+    pagamento: document.getElementById('pagamento').value,
+    frete: parseFloat(document.getElementById('frete').value),
+  };
+  try {
+    const resp = await fetch('/pedido', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pedido) });
+    const data = await resp.json();
+    if (data.sucesso) {
+      mostrarMensagem('Pedido criado com sucesso! Numero: ' + data.pedido_id, true);
+      carrinho = {};
+      atualizarCarrinho();
+      renderProdutos(produtos);
+    } else {
+      mostrarMensagem('Erro ao enviar pedido. Tente novamente.', false);
+    }
+  } catch { mostrarMensagem('Erro de conexao. Tente novamente.', false); }
+}
+
+function mostrarMensagem(texto, ok) {
+  const el = document.getElementById('mensagem');
+  el.textContent = texto;
+  el.className = ok ? 'sucesso' : 'erro';
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth' });
+}
+
+renderProdutos(produtos);
 </script>
 </body>
 </html>
