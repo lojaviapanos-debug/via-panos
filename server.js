@@ -97,7 +97,7 @@ function authMiddleware(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ erro: 'Token necessario' });
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'viapanos_secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'viapanos_secret_2024');
     req.user = decoded;
     next();
   } catch (e) {
@@ -107,12 +107,20 @@ function authMiddleware(req, res, next) {
 
 // ===== AUTH =====
 app.post('/api/admin/login', async (req, res) => {
-  const { senha } = req.body;
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-  const valid = await bcrypt.compare(senha, adminPassword).catch(() => senha === adminPassword);
-  if (!valid) return res.status(401).json({ erro: 'Senha incorreta' });
-  const token = jwt.sign({ admin: true }, process.env.JWT_SECRET || 'viapanos_secret', { expiresIn: '24h' });
-  res.json({ token, mensagem: 'Login realizado com sucesso' });
+  try {
+    const { senha } = req.body;
+    const adminPassword = process.env.ADMIN_PASSWORD || 'ViaPanos@2024!';
+    
+    // Comparacao direta (senha em texto puro na env var)
+    const valid = (senha === adminPassword);
+    
+    if (!valid) return res.status(401).json({ erro: 'Senha incorreta' });
+    
+    const token = jwt.sign({ admin: true }, process.env.JWT_SECRET || 'viapanos_secret_2024', { expiresIn: '24h' });
+    res.json({ token, mensagem: 'Login realizado com sucesso' });
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
+  }
 });
 
 // ===== PRODUTOS =====
@@ -203,10 +211,12 @@ app.post('/api/pedido', async (req, res) => {
     const numero = 'VP' + Date.now();
 
     // Salvar ou atualizar cliente
-    let clienteSalvo = await Cliente.findOne({ email: cliente.email });
-    if (!clienteSalvo && cliente.email) {
-      clienteSalvo = new Cliente(cliente);
-      await clienteSalvo.save();
+    if (cliente.email) {
+      let clienteSalvo = await Cliente.findOne({ email: cliente.email });
+      if (!clienteSalvo) {
+        clienteSalvo = new Cliente(cliente);
+        await clienteSalvo.save();
+      }
     }
 
     // Criar pedido no banco
@@ -233,12 +243,10 @@ app.post('/api/pedido', async (req, res) => {
           status: 'pending'
         };
 
-        // Endpoint de propostas comerciais Olist (contact/quote)
         const olistRes = await axios.post(`${OLIST_API}/v1/quotes`, olistPayload, {
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
         }).catch(async () => {
-          // Fallback: tentar via contatos
-          return await axios.post(`${OLIST_API}/v1/contacts`, { ...olistPayload.contact, notes: observacoes }, {
+          return await axios.post(`${OLIST_API}/v1/contacts`, olistPayload.contact, {
             headers: { Authorization: `Bearer ${token}` }
           });
         });
