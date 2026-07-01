@@ -26,21 +26,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
 .product-card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);cursor:pointer;transition:transform 0.2s,box-shadow 0.2s}
 .product-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.12)}
-.product-img{width:100%;aspect-ratio:1;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden}
+.product-img{width:100%;aspect-ratio:1;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden}
 .product-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
 .product-info{padding:10px}
 .product-name{font-size:13px;font-weight:600;color:#111;margin-bottom:4px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .product-price{font-size:15px;font-weight:700;color:#075e54}
 .product-add{width:100%;margin-top:8px;padding:7px;background:#25d366;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer}
 .product-add:hover{background:#20b857}
-.section-title{font-size:14px;font-weight:700;color:#555;padding:10px 2px 8px;text-transform:uppercase;letter-spacing:0.5px}
-.empty-state{text-align:center;padding:60px 20px;color:#aaa}
+.empty-state{text-align:center;padding:60px 20px;color:#aaa;grid-column:1/-1}
 .empty-state div{font-size:48px;margin-bottom:10px}
-.loading{text-align:center;padding:40px;color:#aaa;font-size:14px}
+.loading{text-align:center;padding:40px;color:#aaa;font-size:14px;grid-column:1/-1}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:flex-end;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal{background:white;border-radius:20px 20px 0 0;width:100%;max-width:500px;max-height:85vh;overflow-y:auto;padding:20px}
-.modal-img{width:100%;aspect-ratio:1;background:#f0f0f0;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:60px;margin-bottom:16px;overflow:hidden}
+.modal-img{width:100%;aspect-ratio:1;background:#f5f5f5;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:60px;margin-bottom:16px;overflow:hidden}
 .modal-img img{width:100%;height:100%;object-fit:cover}
 .modal h2{font-size:18px;font-weight:700;margin-bottom:6px}
 .modal-price{font-size:22px;font-weight:700;color:#075e54;margin-bottom:8px}
@@ -51,8 +50,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .qty-num{font-size:16px;font-weight:700;min-width:20px;text-align:center}
 .modal-add-btn{width:100%;padding:14px;background:#25d366;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px}
 .modal-close{width:100%;padding:10px;background:none;border:1px solid #ddd;border-radius:12px;font-size:14px;cursor:pointer;color:#666}
-.checkout-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:400;align-items:center;justify-content:center}
-.checkout-modal.open{display:flex}
+.checkout-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:400;align-items:center;justify-content:center}
+.checkout-overlay.open{display:flex}
 .checkout-box{background:white;border-radius:16px;width:95%;max-width:480px;max-height:90vh;overflow-y:auto;padding:24px}
 .checkout-box h2{font-size:18px;margin-bottom:20px;color:#333}
 .form-group{margin-bottom:14px}
@@ -60,19 +59,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .form-group input{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none}
 .form-group input:focus{border-color:#25d366}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.checkout-items{background:#f8f8f8;border-radius:8px;padding:12px;margin-bottom:16px}
-.checkout-item{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:#444}
+.checkout-items{background:#f8f8f8;border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px}
+.checkout-item{display:flex;justify-content:space-between;padding:4px 0;color:#444}
 .checkout-total{font-size:16px;font-weight:700;color:#075e54;border-top:1px solid #eee;margin-top:8px;padding-top:8px;display:flex;justify-content:space-between}
 .checkout-submit{width:100%;padding:14px;background:#075e54;color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:12px}
-.checkout-submit:hover{background:#064e45}
 .checkout-cancel{width:100%;padding:10px;background:none;border:1px solid #ddd;border-radius:10px;font-size:14px;cursor:pointer;color:#666;margin-top:8px}
-.success-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;align-items:center;justify-content:center}
-.success-modal.open{display:flex}
+.success-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;align-items:center;justify-content:center}
+.success-overlay.open{display:flex}
 .success-box{background:white;border-radius:16px;padding:32px;width:90%;max-width:360px;text-align:center}
 .success-box .icon{font-size:56px;margin-bottom:16px}
 .success-box h2{font-size:20px;font-weight:700;color:#075e54;margin-bottom:8px}
 .success-box p{font-size:14px;color:#666;margin-bottom:20px}
 .success-box button{background:#25d366;color:white;border:none;padding:12px 32px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer}
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none}
 </style>
 </head>
 <body>
@@ -84,19 +83,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <h1>Via Panos</h1>
       <p>Cama, Mesa e Banho</p>
     </div>
-    <div class="header-badge">&#128722; Catalogo</div>
+    <div class="header-badge">Catalogo</div>
   </div>
   <div class="cat-nav">
-    <button class="cat-btn active" onclick="filterCat('')">Todos</button>
-    <button class="cat-btn" onclick="filterCat('cama')">&#128716; Cama</button>
-    <button class="cat-btn" onclick="filterCat('mesa')">&#127860; Mesa</button>
-    <button class="cat-btn" onclick="filterCat('banho')">&#129437; Banho</button>
+    <button class="cat-btn active" data-cat="">Todos</button>
+    <button class="cat-btn" data-cat="cama">Cama</button>
+    <button class="cat-btn" data-cat="mesa">Mesa</button>
+    <button class="cat-btn" data-cat="banho">Banho</button>
   </div>
 </div>
 
 <div class="main">
   <div id="productContainer" class="products-grid">
-    <div class="loading" style="grid-column:1/-1">Carregando produtos...</div>
+    <div class="loading">Carregando produtos...</div>
   </div>
 </div>
 
@@ -105,32 +104,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <span id="cartCount">0 item(s)</span>
     <span id="cartTotal">R$ 0,00</span>
   </div>
-  <button class="cart-bar-btn" onclick="openCheckout()">Ver pedido &#8594;</button>
+  <button class="cart-bar-btn" id="cartBtn">Ver pedido</button>
 </div>
 
-<!-- MODAL PRODUTO -->
-<div class="modal-overlay" id="productModal" onclick="if(event.target===this)closeProductModal()">
+<div class="modal-overlay" id="productModal">
   <div class="modal">
-    <div class="modal-img" id="modalImg"><span id="modalImgEmoji">&#128722;</span></div>
+    <div class="modal-img" id="modalImg"></div>
     <span class="modal-cat" id="modalCat"></span>
     <h2 id="modalName"></h2>
     <div class="modal-price" id="modalPrice"></div>
     <p class="modal-desc" id="modalDesc"></p>
     <div class="qty-row">
-      <button class="qty-btn" onclick="changeQty(-1)">&#8722;</button>
+      <button class="qty-btn" id="qtyMinus">-</button>
       <span class="qty-num" id="modalQty">1</span>
-      <button class="qty-btn" onclick="changeQty(1)">+</button>
+      <button class="qty-btn" id="qtyPlus">+</button>
       <span style="font-size:13px;color:#aaa" id="modalSubtotal"></span>
     </div>
-    <button class="modal-add-btn" onclick="addToCart()">Adicionar ao pedido</button>
-    <button class="modal-close" onclick="closeProductModal()">Fechar</button>
+    <button class="modal-add-btn" id="modalAddBtn">Adicionar ao pedido</button>
+    <button class="modal-close" id="modalCloseBtn">Fechar</button>
   </div>
 </div>
 
-<!-- CHECKOUT -->
-<div class="checkout-modal" id="checkoutModal">
+<div class="checkout-overlay" id="checkoutOverlay">
   <div class="checkout-box">
-    <h2>&#128230; Finalizar Pedido</h2>
+    <h2>Finalizar Pedido</h2>
     <div class="checkout-items" id="checkoutItems"></div>
     <div class="form-group"><label>Nome completo *</label><input type="text" id="checkNome" placeholder="Seu nome"></div>
     <div class="form-row">
@@ -150,182 +147,265 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div class="form-group"><label>Numero</label><input type="text" id="checkNum" placeholder="123"></div>
     </div>
     <div class="form-group"><label>Observacoes</label><input type="text" id="checkObs" placeholder="Ex: entregar no periodo da tarde"></div>
-    <button class="checkout-submit" onclick="submitOrder()">Confirmar Pedido</button>
-    <button class="checkout-cancel" onclick="closeCheckout()">Continuar comprando</button>
+    <button class="checkout-submit" id="submitBtn">Confirmar Pedido</button>
+    <button class="checkout-cancel" id="cancelCheckoutBtn">Continuar comprando</button>
   </div>
 </div>
 
-<!-- SUCESSO -->
-<div class="success-modal" id="successModal">
+<div class="success-overlay" id="successOverlay">
   <div class="success-box">
     <div class="icon">&#9989;</div>
     <h2>Pedido Enviado!</h2>
-    <p id="successMsg">Seu pedido foi registrado e enviado para o ERP. Em breve entraremos em contato!</p>
-    <button onclick="closeSuccess()">Continuar comprando</button>
+    <p id="successMsg">Seu pedido foi registrado com sucesso!</p>
+    <button id="successCloseBtn">Continuar comprando</button>
   </div>
 </div>
 
-<script>
-let allProducts = [], filteredProducts = [], cart = [], currentProduct = null, currentQty = 1;
-const catEmojis = { cama:'&#128716;', mesa:'&#127860;', banho:'&#129437;' };
+<div id="toast"></div>
 
-async function loadProducts() {
-  try {
-    const res = await fetch('/api/produtos');
-    allProducts = await res.json();
-    renderProducts(allProducts);
-  } catch(e) {
-    document.getElementById('productContainer').innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div>&#128722;</div><p>Nenhum produto disponivel no momento</p></div>';
-  }
+<script>
+var allProducts = [];
+var cart = [];
+var currentProduct = null;
+var currentQty = 1;
+var toastTimer = null;
+
+var catEmojis = { cama: String.fromCodePoint(0x1F6CC), mesa: String.fromCodePoint(0x1F374), banho: String.fromCodePoint(0x1F6BF) };
+
+// ---- Event listeners ----
+document.querySelectorAll('.cat-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.cat-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var cat = btn.getAttribute('data-cat');
+    renderProducts(cat ? allProducts.filter(function(p) { return p.categoria === cat; }) : allProducts);
+  });
+});
+
+document.getElementById('cartBtn').addEventListener('click', openCheckout);
+document.getElementById('qtyMinus').addEventListener('click', function() { setQty(currentQty - 1); });
+document.getElementById('qtyPlus').addEventListener('click', function() { setQty(currentQty + 1); });
+document.getElementById('modalAddBtn').addEventListener('click', addToCart);
+document.getElementById('modalCloseBtn').addEventListener('click', closeProductModal);
+document.getElementById('productModal').addEventListener('click', function(e) { if (e.target === this) closeProductModal(); });
+document.getElementById('submitBtn').addEventListener('click', submitOrder);
+document.getElementById('cancelCheckoutBtn').addEventListener('click', closeCheckout);
+document.getElementById('successCloseBtn').addEventListener('click', closeSuccess);
+
+// ---- Products ----
+function loadProducts() {
+  fetch('/api/produtos')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (Array.isArray(data)) {
+        allProducts = data;
+        renderProducts(allProducts);
+      } else {
+        showEmpty('Nenhum produto disponivel no momento');
+      }
+    })
+    .catch(function() {
+      showEmpty('Erro ao carregar produtos. Tente novamente.');
+    });
+}
+
+function showEmpty(msg) {
+  var container = document.getElementById('productContainer');
+  container.innerHTML = '<div class="empty-state"><div>' + String.fromCodePoint(0x1F6D2) + '</div><p>' + msg + '</p></div>';
 }
 
 function renderProducts(products) {
-  const container = document.getElementById('productContainer');
-  if (!products.length) {
-    container.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div>&#128722;</div><p>Nenhum produto encontrado nessa categoria</p></div>';
+  var container = document.getElementById('productContainer');
+  if (!products || products.length === 0) {
+    showEmpty('Nenhum produto encontrado nessa categoria');
     return;
   }
-  container.innerHTML = products.map(p => `
-    <div class="product-card" onclick="openProduct('${p._id}')">
-      <div class="product-img">
-        ${p.imagem ? '<img src="'+p.imagem+'" alt="'+p.nome+'" loading="lazy" onerror="this.style.display='none'">' : ''}
-        <span>${catEmojis[p.categoria]||'&#128722;'}</span>
-      </div>
-      <div class="product-info">
-        <div class="product-name">${p.nome}</div>
-        <div class="product-price">R$ ${p.preco.toFixed(2).replace('.',',')}</div>
-        <button class="product-add" onclick="event.stopPropagation();quickAdd('${p._id}')">+ Adicionar</button>
-      </div>
-    </div>
-  `).join('');
-}
+  container.innerHTML = '';
+  products.forEach(function(p) {
+    var card = document.createElement('div');
+    card.className = 'product-card';
+    card.setAttribute('data-id', p._id);
 
-function filterCat(cat) {
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  const filtered = cat ? allProducts.filter(p => p.categoria === cat) : allProducts;
-  renderProducts(filtered);
+    var imgDiv = document.createElement('div');
+    imgDiv.className = 'product-img';
+    if (p.imagem) {
+      var img = document.createElement('img');
+      img.src = p.imagem;
+      img.alt = p.nome;
+      img.loading = 'lazy';
+      img.onerror = function() { this.style.display = 'none'; };
+      imgDiv.appendChild(img);
+    }
+    var emoji = document.createElement('span');
+    emoji.textContent = catEmojis[p.categoria] || String.fromCodePoint(0x1F6D2);
+    imgDiv.appendChild(emoji);
+
+    var info = document.createElement('div');
+    info.className = 'product-info';
+
+    var name = document.createElement('div');
+    name.className = 'product-name';
+    name.textContent = p.nome;
+
+    var price = document.createElement('div');
+    price.className = 'product-price';
+    price.textContent = 'R$ ' + p.preco.toFixed(2).replace('.', ',');
+
+    var addBtn = document.createElement('button');
+    addBtn.className = 'product-add';
+    addBtn.textContent = '+ Adicionar';
+    addBtn.setAttribute('data-id', p._id);
+    addBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      quickAdd(p._id);
+    });
+
+    info.appendChild(name);
+    info.appendChild(price);
+    info.appendChild(addBtn);
+    card.appendChild(imgDiv);
+    card.appendChild(info);
+    card.addEventListener('click', function() { openProduct(p._id); });
+    container.appendChild(card);
+  });
 }
 
 function openProduct(id) {
-  currentProduct = allProducts.find(p => p._id === id);
-  if (!currentProduct) return;
+  var p = allProducts.find(function(x) { return x._id === id; });
+  if (!p) return;
+  currentProduct = p;
   currentQty = 1;
-  const modal = document.getElementById('productModal');
-  document.getElementById('modalName').textContent = currentProduct.nome;
-  document.getElementById('modalPrice').textContent = 'R$ ' + currentProduct.preco.toFixed(2).replace('.',',');
-  document.getElementById('modalDesc').textContent = currentProduct.descricao || 'Produto de alta qualidade Via Panos.';
-  document.getElementById('modalCat').textContent = currentProduct.categoria;
-  document.getElementById('modalQty').textContent = 1;
-  document.getElementById('modalSubtotal').textContent = '= R$ ' + currentProduct.preco.toFixed(2).replace('.',',');
-  const imgEl = document.getElementById('modalImg');
-  const emojiEl = document.getElementById('modalImgEmoji');
-  if (currentProduct.imagem) {
-    imgEl.innerHTML = '<img src="'+currentProduct.imagem+'" alt="'+currentProduct.nome+'" style="width:100%;height:100%;object-fit:cover;border-radius:12px">';
+  document.getElementById('modalName').textContent = p.nome;
+  document.getElementById('modalPrice').textContent = 'R$ ' + p.preco.toFixed(2).replace('.', ',');
+  document.getElementById('modalDesc').textContent = p.descricao || 'Produto de alta qualidade Via Panos.';
+  document.getElementById('modalCat').textContent = p.categoria;
+  document.getElementById('modalQty').textContent = '1';
+  document.getElementById('modalSubtotal').textContent = '= R$ ' + p.preco.toFixed(2).replace('.', ',');
+  var imgDiv = document.getElementById('modalImg');
+  imgDiv.innerHTML = '';
+  if (p.imagem) {
+    var img = document.createElement('img');
+    img.src = p.imagem;
+    img.alt = p.nome;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:12px';
+    imgDiv.appendChild(img);
   } else {
-    imgEl.innerHTML = '<span style="font-size:60px">'+(catEmojis[currentProduct.categoria]||'&#128722;')+'</span>';
+    imgDiv.textContent = catEmojis[p.categoria] || String.fromCodePoint(0x1F6D2);
   }
-  modal.classList.add('open');
+  document.getElementById('productModal').classList.add('open');
 }
 
 function closeProductModal() { document.getElementById('productModal').classList.remove('open'); }
 
-function changeQty(delta) {
-  currentQty = Math.max(1, currentQty + delta);
+function setQty(n) {
+  currentQty = Math.max(1, n);
   document.getElementById('modalQty').textContent = currentQty;
-  document.getElementById('modalSubtotal').textContent = '= R$ ' + (currentProduct.preco * currentQty).toFixed(2).replace('.',',');
+  if (currentProduct) {
+    document.getElementById('modalSubtotal').textContent = '= R$ ' + (currentProduct.preco * currentQty).toFixed(2).replace('.', ',');
+  }
 }
 
 function addToCart() {
-  const existing = cart.find(i => i.produtoId === currentProduct._id);
-  if (existing) existing.quantidade += currentQty;
-  else cart.push({ produtoId: currentProduct._id, produto: currentProduct.nome, preco: currentProduct.preco, quantidade: currentQty });
+  if (!currentProduct) return;
+  var existing = cart.find(function(i) { return i.produtoId === currentProduct._id; });
+  if (existing) {
+    existing.quantidade += currentQty;
+  } else {
+    cart.push({ produtoId: currentProduct._id, produto: currentProduct.nome, preco: currentProduct.preco, quantidade: currentQty });
+  }
   updateCartBar();
   closeProductModal();
   showToast('Adicionado ao carrinho!');
 }
 
 function quickAdd(id) {
-  const p = allProducts.find(p => p._id === id);
+  var p = allProducts.find(function(x) { return x._id === id; });
   if (!p) return;
-  const existing = cart.find(i => i.produtoId === id);
-  if (existing) existing.quantidade += 1;
-  else cart.push({ produtoId: id, produto: p.nome, preco: p.preco, quantidade: 1 });
+  var existing = cart.find(function(i) { return i.produtoId === id; });
+  if (existing) {
+    existing.quantidade += 1;
+  } else {
+    cart.push({ produtoId: id, produto: p.nome, preco: p.preco, quantidade: 1 });
+  }
   updateCartBar();
   showToast(p.nome + ' adicionado!');
 }
 
 function updateCartBar() {
-  const total = cart.reduce((acc, i) => acc + i.preco * i.quantidade, 0);
-  const count = cart.reduce((acc, i) => acc + i.quantidade, 0);
+  var total = cart.reduce(function(acc, i) { return acc + i.preco * i.quantidade; }, 0);
+  var count = cart.reduce(function(acc, i) { return acc + i.quantidade; }, 0);
   document.getElementById('cartCount').textContent = count + ' item(s)';
-  document.getElementById('cartTotal').textContent = 'R$ ' + total.toFixed(2).replace('.',',');
-  const bar = document.getElementById('cartBar');
+  document.getElementById('cartTotal').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+  var bar = document.getElementById('cartBar');
   if (count > 0) bar.classList.add('visible'); else bar.classList.remove('visible');
 }
 
 function openCheckout() {
-  const total = cart.reduce((acc, i) => acc + i.preco * i.quantidade, 0);
-  document.getElementById('checkoutItems').innerHTML = cart.map(i =>
-    '<div class="checkout-item"><span>'+i.produto+' x'+i.quantidade+'</span><span>R$ '+(i.preco*i.quantidade).toFixed(2).replace('.',',')+'</span></div>'
-  ).join('') + '<div class="checkout-total"><span>Total</span><span>R$ '+total.toFixed(2).replace('.',',')+'</span></div>';
-  document.getElementById('checkoutModal').classList.add('open');
+  var total = cart.reduce(function(acc, i) { return acc + i.preco * i.quantidade; }, 0);
+  var html = cart.map(function(i) {
+    return '<div class="checkout-item"><span>' + i.produto + ' x' + i.quantidade + '</span><span>R$ ' + (i.preco * i.quantidade).toFixed(2).replace('.', ',') + '</span></div>';
+  }).join('');
+  html += '<div class="checkout-total"><span>Total</span><span>R$ ' + total.toFixed(2).replace('.', ',') + '</span></div>';
+  document.getElementById('checkoutItems').innerHTML = html;
+  document.getElementById('checkoutOverlay').classList.add('open');
 }
 
-function closeCheckout() { document.getElementById('checkoutModal').classList.remove('open'); }
+function closeCheckout() { document.getElementById('checkoutOverlay').classList.remove('open'); }
 
-async function submitOrder() {
-  const nome = document.getElementById('checkNome').value.trim();
-  const telefone = document.getElementById('checkTel').value.trim();
+function submitOrder() {
+  var nome = document.getElementById('checkNome').value.trim();
+  var telefone = document.getElementById('checkTel').value.trim();
   if (!nome || !telefone) { alert('Preencha nome e telefone!'); return; }
-  const btn = document.querySelector('.checkout-submit');
+  var btn = document.getElementById('submitBtn');
   btn.textContent = 'Enviando...';
   btn.disabled = true;
-  try {
-    const res = await fetch('/api/pedido', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        cliente: {
-          nome, telefone,
-          email: document.getElementById('checkEmail').value,
-          endereco: {
-            cep: document.getElementById('checkCep').value,
-            cidade: document.getElementById('checkCidade').value,
-            estado: document.getElementById('checkEstado').value,
-            bairro: document.getElementById('checkBairro').value,
-            rua: document.getElementById('checkRua').value,
-            numero: document.getElementById('checkNum').value
-          }
-        },
-        itens: cart,
-        observacoes: document.getElementById('checkObs').value
-      })
-    });
-    const data = await res.json();
+  var payload = {
+    cliente: {
+      nome: nome,
+      telefone: telefone,
+      email: document.getElementById('checkEmail').value,
+      endereco: {
+        cep: document.getElementById('checkCep').value,
+        cidade: document.getElementById('checkCidade').value,
+        estado: document.getElementById('checkEstado').value,
+        bairro: document.getElementById('checkBairro').value,
+        rua: document.getElementById('checkRua').value,
+        numero: document.getElementById('checkNum').value
+      }
+    },
+    itens: cart,
+    observacoes: document.getElementById('checkObs').value
+  };
+  fetch('/api/pedido', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
     closeCheckout();
     cart = [];
     updateCartBar();
-    document.getElementById('successMsg').textContent = 'Pedido #' + (data.numeroPedido||'') + ' registrado! Total: R$ ' + (data.total||0).toFixed(2).replace('.',',') + '. Entraremos em contato em breve!';
-    document.getElementById('successModal').classList.add('open');
-  } catch(e) {
+    document.getElementById('successMsg').textContent = 'Pedido #' + (data.numeroPedido || '') + ' registrado! Total: R$ ' + (data.total || 0).toFixed(2).replace('.', ',') + '. Entraremos em contato em breve!';
+    document.getElementById('successOverlay').classList.add('open');
+  })
+  .catch(function() {
     alert('Erro ao enviar pedido. Tente novamente.');
-  } finally {
+  })
+  .finally(function() {
     btn.textContent = 'Confirmar Pedido';
     btn.disabled = false;
-  }
+  });
 }
 
-function closeSuccess() { document.getElementById('successModal').classList.remove('open'); }
+function closeSuccess() { document.getElementById('successOverlay').classList.remove('open'); }
 
-let toastTimeout;
 function showToast(msg) {
-  let t = document.getElementById('toast');
-  if (!t) { t = document.createElement('div'); t.id='toast'; t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:opacity 0.3s'; document.body.appendChild(t); }
+  var t = document.getElementById('toast');
   t.textContent = msg;
   t.style.opacity = '1';
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => t.style.opacity = '0', 2000);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { t.style.opacity = '0'; }, 2000);
 }
 
 loadProducts();
