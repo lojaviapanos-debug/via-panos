@@ -46,9 +46,8 @@ header{background:#2c3e50;color:#fff;padding:15px 20px;display:flex;align-items:
 .checkout-btns{display:flex;gap:10px}
 .btn-wpp{flex:1;padding:12px;background:#25d366;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer}
 .btn-pedido{flex:1;padding:12px;background:#2c3e50;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer}
-.btn-pedido:hover{background:#e74c3c}
+.btn-pedido:hover,.btn-full:hover{background:#e74c3c}
 .btn-full{width:100%;padding:12px;background:#2c3e50;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;margin-bottom:8px}
-.btn-full:hover{background:#e74c3c}
 .checkout-form{padding:15px 20px;border-top:1px solid #eee;background:#f9f9f9}
 .checkout-form h4{font-size:15px;font-weight:bold;color:#2c3e50;margin-bottom:10px}
 .checkout-form input,.checkout-form textarea{width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;margin-bottom:8px}
@@ -76,15 +75,14 @@ header{background:#2c3e50;color:#fff;padding:15px 20px;display:flex;align-items:
 <body>
 <header>
   <div class="logo">Via <span>Panos</span></div>
-  <div class="cart-bar" onclick="abrirCarrinho()">&#128722; <span id="cartCount">0</span> | <span id="cartTotalBar">R$ 0,00</span></div>
+  <div class="cart-bar" onclick="abrirCarrinho()">Cart <span id="cartCount">0</span> | <span id="cartTotalBar">R$ 0,00</span></div>
 </header>
 <div class="pesquisa-area"><input type="text" id="searchInput" placeholder="Buscar produto..." oninput="filtrarProdutos()" /></div>
-<div class="filtros" id="filtrosContainer"><button class="filtro-btn active" onclick="filtrarCategoria('todos',this)">Todos</button></div>
+<div class="filtros" id="filtrosContainer"><button class="filtro-btn active" onclick="filtrarCat('todos',this)">Todos</button></div>
 <div class="catalogo" id="catalogo"></div>
-
 <div class="cart-modal" id="cartModal">
   <div class="cart-box">
-    <div class="cart-title">Meu Carrinho <button class="modal-close" onclick="fecharCarrinho()">&#x2715;</button></div>
+    <div class="cart-title">Meu Carrinho <button class="modal-close" onclick="fecharCarrinho()">X</button></div>
     <div id="cartItens"></div>
     <div id="statusMsg"></div>
     <div class="checkout-form" id="checkoutForm" style="display:none">
@@ -108,11 +106,10 @@ header{background:#2c3e50;color:#fff;padding:15px 20px;display:flex;align-items:
     </div>
   </div>
 </div>
-
 <div class="prod-modal" id="prodModal">
   <div class="prod-modal-box">
     <div style="position:relative">
-      <button class="modal-close" style="position:absolute;top:10px;right:10px;z-index:10;background:rgba(255,255,255,0.9);border-radius:50%;width:32px;height:32px;font-size:18px" onclick="fecharProdModal()">&#x2715;</button>
+      <button class="modal-close" style="position:absolute;top:10px;right:10px;z-index:10;background:rgba(255,255,255,0.9);border-radius:50%;width:32px;height:32px;font-size:18px" onclick="fecharProdModal()">X</button>
       <img id="prodModalImg" class="prod-modal-img" src="" alt="" />
     </div>
     <div class="prod-modal-thumbs" id="prodModalThumbs"></div>
@@ -154,7 +151,7 @@ function carregarCats() {
       btn.className = "filtro-btn";
       btn.textContent = c.nome;
       var slug = c.slug || c.nome.toLowerCase();
-      btn.onclick = (function(s) { return function() { filtrarCat(s, this); }; })(slug);
+      (function(s, b) { b.onclick = function() { filtrarCat(s, b); }; })(slug, btn);
       container.appendChild(btn);
     });
   })
@@ -194,57 +191,59 @@ function renderProdutos() {
   var catalogo = document.getElementById("catalogo");
   catalogo.innerHTML = "";
   if (lista.length === 0) {
-    catalogo.innerHTML = "<p style=\"grid-column:1/-1;text-align:center;color:#888;padding:40px\">Nenhum produto encontrado</p>";
+    var p = document.createElement("p");
+    p.textContent = "Nenhum produto encontrado";
+    p.style.cssText = "grid-column:1/-1;text-align:center;color:#888;padding:40px";
+    catalogo.appendChild(p);
     return;
   }
-  lista.forEach(function(p) {
+  lista.forEach(function(prod) {
     var card = document.createElement("div");
     card.className = "prod-card";
-    var imgSrc = p.imagem || (p.imagens && p.imagens[0]) || "";
+    var imgSrc = prod.imagem || (prod.imagens && prod.imagens[0]) || "";
     if (imgSrc) {
       var im = document.createElement("img");
       im.className = "prod-img";
       im.src = imgSrc;
-      im.alt = p.nome;
-      im.setAttribute("loading", "lazy");
+      im.alt = prod.nome;
+      im.loading = "lazy";
       card.appendChild(im);
     } else {
       var ph = document.createElement("div");
       ph.className = "prod-img";
       ph.style.cssText = "display:flex;align-items:center;justify-content:center;color:#ccc;font-size:40px";
-      ph.textContent = "\u{1F4F7}";
+      ph.textContent = "[sem foto]";
       card.appendChild(ph);
     }
     var body = document.createElement("div");
     body.className = "prod-body";
-    if (p.sku) {
+    if (prod.sku) {
       var skuEl = document.createElement("div");
       skuEl.className = "prod-sku";
-      skuEl.textContent = p.sku;
+      skuEl.textContent = prod.sku;
       body.appendChild(skuEl);
     }
     var nomeEl = document.createElement("div");
     nomeEl.className = "prod-nome";
-    nomeEl.textContent = p.nome;
+    nomeEl.textContent = prod.nome;
     var precoEl = document.createElement("div");
     precoEl.className = "prod-preco";
-    precoEl.textContent = "R$ " + parseFloat(p.preco).toFixed(2).replace(".", ",");
+    precoEl.textContent = "R$ " + parseFloat(prod.preco).toFixed(2).replace(".", ",");
     body.appendChild(nomeEl);
     body.appendChild(precoEl);
     card.appendChild(body);
     var addBtn = document.createElement("button");
-    if (p.estoque > 0) {
+    if (prod.estoque > 0) {
       addBtn.className = "prod-add";
       addBtn.textContent = "Adicionar";
-      addBtn.setAttribute("data-id", p._id);
-      addBtn.onclick = function(e) { e.stopPropagation(); addCarrInho(this.getAttribute("data-id")); };
+      (function(pid) { addBtn.onclick = function(e) { e.stopPropagation(); adicionarCarrinho(pid); }; })(prod._id);
     } else {
       addBtn.className = "prod-add sem-estoque";
       addBtn.textContent = "Sem estoque";
       addBtn.disabled = true;
     }
     card.appendChild(addBtn);
-    card.onclick = function(e) { if (!e.target.classList.contains("prod-add")) abrirProdModal(p); };
+    (function(p) { card.onclick = function(e) { if (!e.target.classList.contains("prod-add")) abrirProdModal(p); }; })(prod);
     catalogo.appendChild(card);
   });
 }
@@ -253,8 +252,7 @@ function abrirProdModal(p) {
   prodAtual = p;
   var imgs = (p.imagens && p.imagens.length > 0) ? p.imagens : (p.imagem ? [p.imagem] : []);
   var mainImg = document.getElementById("prodModalImg");
-  mainImg.src = imgs[0] || "";
-  mainImg.style.display = imgs[0] ? "block" : "none";
+  if (imgs[0]) { mainImg.src = imgs[0]; mainImg.style.display = "block"; } else { mainImg.style.display = "none"; }
   var thumbsEl = document.getElementById("prodModalThumbs");
   thumbsEl.innerHTML = "";
   if (imgs.length > 1) {
@@ -262,7 +260,7 @@ function abrirProdModal(p) {
       var t = document.createElement("img");
       t.className = "prod-thumb" + (i === 0 ? " active" : "");
       t.src = src;
-      t.onclick = (function(s, el) { return function() {
+      (function(s, el) { el.onclick = function() {
         document.getElementById("prodModalImg").src = s;
         document.querySelectorAll(".prod-thumb").forEach(function(x) { x.classList.remove("active"); });
         el.classList.add("active");
@@ -284,17 +282,17 @@ function fecharProdModal() {
 
 function addDoModal() {
   if (!prodAtual) return;
-  addCarrinhoObj(prodAtual);
+  adicionarCarrinhoObj(prodAtual);
   fecharProdModal();
   abrirCarrinho();
 }
 
-function addCarrInho(id) {
+function adicionarCarrinho(id) {
   var p = produtosAll.find(function(x) { return x._id === id; });
-  if (p) addCarrinhoObj(p);
+  if (p) adicionarCarrinhoObj(p);
 }
 
-function addCarrinhoObj(p) {
+function adicionarCarrinhoObj(p) {
   var item = carrinho.find(function(x) { return x._id === p._id; });
   if (item) {
     item.quantidade++;
@@ -307,7 +305,7 @@ function addCarrinhoObj(p) {
 function removerItem(id) {
   carrinho = carrinho.filter(function(x) { return x._id !== id; });
   atualizarCarrinho();
-  renderCarrinhoItens();
+  renderItens();
 }
 
 function mudarQty(id, delta) {
@@ -316,7 +314,7 @@ function mudarQty(id, delta) {
   item.quantidade += delta;
   if (item.quantidade <= 0) carrinho = carrinho.filter(function(x) { return x._id !== id; });
   atualizarCarrinho();
-  renderCarrinhoItens();
+  renderItens();
 }
 
 function atualizarCarrinho() {
@@ -329,7 +327,7 @@ function atualizarCarrinho() {
 }
 
 function abrirCarrinho() {
-  renderCarrinhoItens();
+  renderItens();
   document.getElementById("cartModal").classList.add("open");
 }
 
@@ -338,7 +336,7 @@ function fecharCarrinho() {
   esconderCheckout();
 }
 
-function renderCarrinhoItens() {
+function renderItens() {
   var el = document.getElementById("cartItens");
   el.innerHTML = "";
   if (carrinho.length === 0) {
@@ -349,10 +347,10 @@ function renderCarrinhoItens() {
     var div = document.createElement("div");
     div.className = "cart-item";
     if (item.imagem) {
-      var img = document.createElement("img");
-      img.className = "cart-item-img";
-      img.src = item.imagem;
-      div.appendChild(img);
+      var im2 = document.createElement("img");
+      im2.className = "cart-item-img";
+      im2.src = item.imagem;
+      div.appendChild(im2);
     }
     var info = document.createElement("div");
     info.className = "cart-item-info";
@@ -366,20 +364,17 @@ function renderCarrinhoItens() {
     qty.className = "cart-item-qty";
     var bM = document.createElement("button");
     bM.className = "qty-btn"; bM.textContent = "-";
-    bM.setAttribute("data-id", item._id);
-    bM.onclick = function() { mudarQty(this.getAttribute("data-id"), -1); };
+    (function(id) { bM.onclick = function() { mudarQty(id, -1); }; })(item._id);
     var qSpan = document.createElement("span");
     qSpan.textContent = item.quantidade;
     var bP = document.createElement("button");
     bP.className = "qty-btn"; bP.textContent = "+";
-    bP.setAttribute("data-id", item._id);
-    bP.onclick = function() { mudarQty(this.getAttribute("data-id"), 1); };
+    (function(id) { bP.onclick = function() { mudarQty(id, 1); }; })(item._id);
     var bR = document.createElement("button");
     bR.className = "qty-btn";
-    bR.innerHTML = "&#x2715;";
+    bR.textContent = "X";
     bR.style.color = "#e74c3c";
-    bR.setAttribute("data-id", item._id);
-    bR.onclick = function() { removerItem(this.getAttribute("data-id")); };
+    (function(id) { bR.onclick = function() { removerItem(id); }; })(item._id);
     qty.appendChild(bM); qty.appendChild(qSpan); qty.appendChild(bP); qty.appendChild(bR);
     info.appendChild(nome); info.appendChild(preco); info.appendChild(qty);
     div.appendChild(info);
@@ -418,7 +413,7 @@ function enviarPedido() {
   .then(function(data) {
     if (data.ok) {
       mostrarStatus("Pedido " + data.numeroPedido + " recebido! Em breve entraremos em contato.", "success");
-      carrinho = []; atualizarCarrinho(); renderCarrinhoItens(); esconderCheckout();
+      carrinho = []; atualizarCarrinho(); renderItens(); esconderCheckout();
       setTimeout(function() { fecharCarrinho(); }, 3000);
     } else {
       mostrarStatus("Erro: " + (data.erro || "tente novamente"), "error");
