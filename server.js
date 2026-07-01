@@ -20,8 +20,8 @@ const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, uuidv4() + path.extname(file.originalname))
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => cb(null, uuidv4() + path.extname(file.originalname))
 });
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
@@ -32,264 +32,239 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/viapanos')
 
 // Schemas
 const ProdutoSchema = new mongoose.Schema({
-  nome: { type: String, required: true },
-  descricao: String,
-  preco: { type: Number, required: true },
-  categoria: { type: String, enum: ['cama', 'mesa', 'banho'], required: true },
-  imagem: String,
-  estoque: { type: Number, default: 0 },
-  ativo: { type: Boolean, default: true },
-  createdAt: { type: Date, default: Date.now }
+    sku: { type: String, default: '' },
+    nome: String,
+    descricao: String,
+    preco: Number,
+    categoria: String,
+    estoque: { type: Number, default: 0 },
+    imagens: [String],
+    ativo: { type: Boolean, default: true },
+    criadoEm: { type: Date, default: Date.now }
 });
 
 const ClienteSchema = new mongoose.Schema({
-  nome: { type: String, required: true },
-  email: String,
-  telefone: String,
-  cpf: String,
-  endereco: {
-    rua: String, numero: String, complemento: String,
-    bairro: String, cidade: String, estado: String, cep: String
-  },
-  createdAt: { type: Date, default: Date.now }
+    nome: String,
+    email: String,
+    telefone: String,
+    endereco: String,
+    criadoEm: { type: Date, default: Date.now }
 });
 
 const PedidoSchema = new mongoose.Schema({
-  numero: { type: String, unique: true },
-  cliente: { nome: String, email: String, telefone: String, cpf: String, endereco: Object },
-  itens: [{ produto: String, produtoId: String, quantidade: Number, preco: Number }],
-  total: Number,
-  status: { type: String, enum: ['pendente','confirmado','enviado','entregue','cancelado'], default: 'pendente' },
-  olistId: String,
-  olistStatus: String,
-  observacoes: String,
-  createdAt: { type: Date, default: Date.now }
+    clienteId: String,
+    clienteNome: String,
+    itens: [{
+          produtoId: String,
+          produtoNome: String,
+          quantidade: Number,
+          preco: Number
+    }],
+    total: Number,
+    status: { type: String, default: 'pendente' },
+    olistPropostaId: String,
+    criadoEm: { type: Date, default: Date.now }
 });
 
 const Produto = mongoose.model('Produto', ProdutoSchema);
 const Cliente = mongoose.model('Cliente', ClienteSchema);
 const Pedido = mongoose.model('Pedido', PedidoSchema);
 
-// Olist OAuth
-const OLIST_API = 'https://api.olist.com';
-let accessToken = null;
-let tokenExpiry = null;
+// Auth
+const JWT_SECRET = process.env.JWT_SECRET || 'viapanos-secret-2024';
+const adminPassword = process.env.ADMIN_PASSWORD || 'ViaPanos@2024!';
 
-async function getToken() {
-  if (accessToken && tokenExpiry && Date.now() < tokenExpiry) return accessToken;
-  try {
-    const resp = await axios.post(`${OLIST_API}/oauth/token`, {
-      grant_type: 'client_credentials',
-      client_id: process.env.OLIST_CLIENT_ID,
-      client_secret: process.env.OLIST_CLIENT_SECRET,
-    });
-    accessToken = resp.data.access_token;
-    tokenExpiry = Date.now() + (resp.data.expires_in - 60) * 1000;
-    return accessToken;
-  } catch (e) {
-    console.log('Erro token Olist:', e.message);
-    return null;
-  }
-}
-
-// Auth middleware
 function authMiddleware(req, res, next) {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ erro: 'Token necessario' });
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'viapanos_secret_2024');
-    req.user = decoded;
-    next();
-  } catch (e) {
-    res.status(401).json({ erro: 'Token invalido' });
-  }
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ erro: 'Token necessario' });
+    try {
+          jwt.verify(token, JWT_SECRET);
+          next();
+    } catch {
+          res.status(401).json({ erro: 'Token invalido' });
+    }
 }
 
-// ===== AUTH =====
-app.post('/api/admin/login', async (req, res) => {
-  try {
+// Login
+app.post('/api/login', (req, res) => {
     const { senha } = req.body;
-    const adminPassword = process.env.ADMIN_PASSWORD || 'ViaPanos@2024!';
-    
-    // Comparacao direta (senha em texto puro na env var)
-    const valid = (senha === adminPassword);
-    
-    if (!valid) return res.status(401).json({ erro: 'Senha incorreta' });
-    
-    const token = jwt.sign({ admin: true }, process.env.JWT_SECRET || 'viapanos_secret_2024', { expiresIn: '24h' });
-    res.json({ token, mensagem: 'Login realizado com sucesso' });
-  } catch(e) {
-    res.status(500).json({ erro: e.message });
-  }
+    if (senha === adminPassword) {
+          const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '24h' });
+          res.json({ token });
+    } else {
+          res.status(401).json({ erro: 'Senha incorreta' });
+    }
 });
 
-// ===== PRODUTOS =====
+// Upload multiplas imagens
+app.post('/api/upload', authMiddleware, upload.array('imagens', 10), (req, res) => {
+    if (!req.files || req.files.length === 0) return res.status(400).json({ erro: 'Nenhum arquivo enviado' });
+    const urls = req.files.map(f => '/uploads/' + f.filename);
+    res.json({ urls });
+});
+
+// Produtos
 app.get('/api/produtos', async (req, res) => {
-  try {
-    const filtro = { ativo: true };
-    if (req.query.categoria) filtro.categoria = req.query.categoria;
-    const produtos = await Produto.find(filtro).sort({ createdAt: -1 });
-    res.json(produtos);
-  } catch (e) { res.status(500).json({ erro: e.message }); }
-});
-
-app.get('/api/admin/produtos', authMiddleware, async (req, res) => {
-  try {
-    const produtos = await Produto.find().sort({ createdAt: -1 });
-    res.json(produtos);
-  } catch (e) { res.status(500).json({ erro: e.message }); }
-});
-
-app.post('/api/admin/produtos', authMiddleware, upload.single('imagem'), async (req, res) => {
-  try {
-    const dados = { ...req.body, preco: parseFloat(req.body.preco), estoque: parseInt(req.body.estoque) || 0 };
-    if (req.file) dados.imagem = '/uploads/' + req.file.filename;
-    const produto = new Produto(dados);
-    await produto.save();
-    res.json(produto);
-  } catch (e) { res.status(500).json({ erro: e.message }); }
-});
-
-app.put('/api/admin/produtos/:id', authMiddleware, upload.single('imagem'), async (req, res) => {
-  try {
-    const dados = { ...req.body, preco: parseFloat(req.body.preco), estoque: parseInt(req.body.estoque) || 0 };
-    if (req.file) dados.imagem = '/uploads/' + req.file.filename;
-    const produto = await Produto.findByIdAndUpdate(req.params.id, dados, { new: true });
-    res.json(produto);
-  } catch (e) { res.status(500).json({ erro: e.message }); }
-});
-
-app.delete('/api/admin/produtos/:id', authMiddleware, async (req, res) => {
-  try {
-    await Produto.findByIdAndUpdate(req.params.id, { ativo: false });
-    res.json({ mensagem: 'Produto removido' });
-  } catch (e) { res.status(500).json({ erro: e.message }); }
-});
-
-// ===== CLIENTES =====
-app.get('/api/admin/clientes', authMiddleware, async (req, res) => {
-  try {
-    const clientes = await Cliente.find().sort({ createdAt: -1 });
-    res.json(clientes);
-  } catch (e) { res.status(500).json({ erro: e.message }); }
-});
-
-app.post('/api/admin/clientes', authMiddleware, async (req, res) => {
-  try {
-    const cliente = new Cliente(req.body);
-    await cliente.save();
-    res.json(cliente);
-  } catch (e) { res.status(500).json({ erro: e.message }); }
-});
-
-app.put('/api/admin/clientes/:id', authMiddleware, async (req, res) => {
-  try {
-    const cliente = await Cliente.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(cliente);
-  } catch (e) { res.status(500).json({ erro: e.message }); }
-});
-
-app.delete('/api/admin/clientes/:id', authMiddleware, async (req, res) => {
-  try {
-    await Cliente.findByIdAndDelete(req.params.id);
-    res.json({ mensagem: 'Cliente removido' });
-  } catch (e) { res.status(500).json({ erro: e.message }); }
-});
-
-// ===== PEDIDOS =====
-app.get('/api/admin/pedidos', authMiddleware, async (req, res) => {
-  try {
-    const pedidos = await Pedido.find().sort({ createdAt: -1 });
-    res.json(pedidos);
-  } catch (e) { res.status(500).json({ erro: e.message }); }
-});
-
-app.post('/api/pedido', async (req, res) => {
-  try {
-    const { cliente, itens, observacoes } = req.body;
-    const total = itens.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
-    const numero = 'VP' + Date.now();
-
-    // Salvar ou atualizar cliente
-    if (cliente.email) {
-      let clienteSalvo = await Cliente.findOne({ email: cliente.email });
-      if (!clienteSalvo) {
-        clienteSalvo = new Cliente(cliente);
-        await clienteSalvo.save();
-      }
-    }
-
-    // Criar pedido no banco
-    const pedido = new Pedido({ numero, cliente, itens, total, observacoes });
-    await pedido.save();
-
-    // Enviar para Olist como proposta comercial
     try {
-      const token = await getToken();
-      if (token) {
-        const olistPayload = {
-          contact: {
-            name: cliente.nome,
-            email: cliente.email || '',
-            phones: [{ type: 'mobile', number: (cliente.telefone || '').replace(/\D/g,'') }]
-          },
-          items: itens.map(item => ({
-            name: item.produto,
-            quantity: item.quantidade,
-            price: item.preco
-          })),
-          total_amount: total,
-          notes: observacoes || ('Pedido Via Panos #' + numero),
-          status: 'pending'
-        };
-
-        const olistRes = await axios.post(`${OLIST_API}/v1/quotes`, olistPayload, {
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
-        }).catch(async () => {
-          return await axios.post(`${OLIST_API}/v1/contacts`, olistPayload.contact, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-        });
-
-        pedido.olistId = olistRes.data?.id || olistRes.data?.data?.id || 'enviado';
-        pedido.olistStatus = 'enviado';
-        await pedido.save();
-      }
-    } catch (olistErr) {
-      console.log('Aviso Olist:', olistErr.message);
+          const produtos = await Produto.find({ ativo: true });
+          res.json(produtos);
+    } catch (err) {
+          res.status(500).json({ erro: err.message });
     }
-
-    res.json({ sucesso: true, numeroPedido: numero, total, pedidoId: pedido._id });
-  } catch (e) {
-    res.status(500).json({ erro: e.message });
-  }
 });
 
-app.put('/api/admin/pedidos/:id/status', authMiddleware, async (req, res) => {
-  try {
-    const pedido = await Pedido.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
-    res.json(pedido);
-  } catch (e) { res.status(500).json({ erro: e.message }); }
+app.get('/api/produtos/todos', authMiddleware, async (req, res) => {
+    try {
+          const produtos = await Produto.find();
+          res.json(produtos);
+    } catch (err) {
+          res.status(500).json({ erro: err.message });
+    }
 });
 
-// Dashboard stats
-app.get('/api/admin/stats', authMiddleware, async (req, res) => {
-  try {
-    const [totalPedidos, totalClientes, totalProdutos, pedidos] = await Promise.all([
-      Pedido.countDocuments(),
-      Cliente.countDocuments(),
-      Produto.countDocuments({ ativo: true }),
-      Pedido.find().select('total status')
-    ]);
-    const faturamento = pedidos.filter(p => p.status !== 'cancelado').reduce((acc, p) => acc + (p.total || 0), 0);
-    const pedidosPendentes = pedidos.filter(p => p.status === 'pendente').length;
-    res.json({ totalPedidos, totalClientes, totalProdutos, faturamento, pedidosPendentes });
-  } catch (e) { res.status(500).json({ erro: e.message }); }
+app.post('/api/produtos', authMiddleware, async (req, res) => {
+    try {
+          const produto = new Produto(req.body);
+          await produto.save();
+          res.json(produto);
+    } catch (err) {
+          res.status(500).json({ erro: err.message });
+    }
 });
 
-// Serve admin e index
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.put('/api/produtos/:id', authMiddleware, async (req, res) => {
+    try {
+          const produto = await Produto.findByIdAndUpdate(req.params.id, req.body, { new: true });
+          res.json(produto);
+    } catch (err) {
+          res.status(500).json({ erro: err.message });
+    }
+});
+
+app.delete('/api/produtos/:id', authMiddleware, async (req, res) => {
+    try {
+          await Produto.findByIdAndDelete(req.params.id);
+          res.json({ sucesso: true });
+    } catch (err) {
+          res.status(500).json({ erro: err.message });
+    }
+});
+
+// Clientes
+app.get('/api/clientes', authMiddleware, async (req, res) => {
+    try {
+          const clientes = await Cliente.find();
+          res.json(clientes);
+    } catch (err) {
+          res.status(500).json({ erro: err.message });
+    }
+});
+
+app.post('/api/clientes', authMiddleware, async (req, res) => {
+    try {
+          const cliente = new Cliente(req.body);
+          await cliente.save();
+          res.json(cliente);
+    } catch (err) {
+          res.status(500).json({ erro: err.message });
+    }
+});
+
+app.put('/api/clientes/:id', authMiddleware, async (req, res) => {
+    try {
+          const cliente = await Cliente.findByIdAndUpdate(req.params.id, req.body, { new: true });
+          res.json(cliente);
+    } catch (err) {
+          res.status(500).json({ erro: err.message });
+    }
+});
+
+app.delete('/api/clientes/:id', authMiddleware, async (req, res) => {
+    try {
+          await Cliente.findByIdAndDelete(req.params.id);
+          res.json({ sucesso: true });
+    } catch (err) {
+          res.status(500).json({ erro: err.message });
+    }
+});
+
+// Pedidos
+app.get('/api/pedidos', authMiddleware, async (req, res) => {
+    try {
+          const pedidos = await Pedido.find().sort({ criadoEm: -1 });
+          res.json(pedidos);
+    } catch (err) {
+          res.status(500).json({ erro: err.message });
+    }
+});
+
+app.post('/api/pedidos', authMiddleware, async (req, res) => {
+    try {
+          const pedido = new Pedido(req.body);
+          await pedido.save();
+          res.json(pedido);
+    } catch (err) {
+          res.status(500).json({ erro: err.message });
+    }
+});
+
+app.put('/api/pedidos/:id', authMiddleware, async (req, res) => {
+    try {
+          const pedido = await Pedido.findByIdAndUpdate(req.params.id, req.body, { new: true });
+          res.json(pedido);
+    } catch (err) {
+          res.status(500).json({ erro: err.message });
+    }
+});
+
+// Olist - Propostas Comerciais
+app.post('/api/olist/proposta', authMiddleware, async (req, res) => {
+    const { pedidoId } = req.body;
+    const clientId = process.env.OLIST_CLIENT_ID;
+    const clientSecret = process.env.OLIST_CLIENT_SECRET;
+
+           if (!clientId || !clientSecret) {
+                 return res.status(400).json({ erro: 'Credenciais Olist nao configuradas' });
+           }
+
+           try {
+                 const pedido = await Pedido.findById(pedidoId);
+                 if (!pedido) return res.status(404).json({ erro: 'Pedido nao encontrado' });
+
+      const tokenResp = await axios.post('https://api.olist.com/oauth/token', {
+              grant_type: 'client_credentials',
+              client_id: clientId,
+              client_secret: clientSecret
+      });
+
+      const olistToken = tokenResp.data.access_token;
+
+      const proposta = {
+              customer_name: pedido.clienteNome,
+              items: pedido.itens.map(i => ({
+                        product_code: i.produtoId,
+                        product_name: i.produtoNome,
+                        quantity: i.quantidade,
+                        unit_price: i.preco
+              }))
+      };
+
+      const propostaResp = await axios.post(
+              'https://api.olist.com/comercial/proposals',
+              proposta,
+        { headers: { Authorization: 'Bearer ' + olistToken } }
+            );
+
+      await Pedido.findByIdAndUpdate(pedidoId, {
+              olistPropostaId: propostaResp.data.id,
+              status: 'enviado_olist'
+      });
+
+      res.json({ sucesso: true, olistId: propostaResp.data.id });
+           } catch (err) {
+                 res.status(500).json({ erro: err.message });
+           }
+});
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Via Panos rodando na porta ${PORT}`));
+app.listen(PORT, () => console.log('Servidor rodando na porta ' + PORT));
