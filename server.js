@@ -161,5 +161,10 @@ app.post('/api/olist/proposta', authMiddleware, async (req, res) => {
   } catch(err) { res.status(500).json({ erro: err.message }); }
 });
 
+// Serve admin page
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log('Servidor rodando na porta ' + PORT));
