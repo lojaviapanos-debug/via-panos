@@ -311,7 +311,11 @@ async function carregarProdutos() {
   (prods || []).forEach(p => {
     const img = p.imagens && p.imagens.length > 0 ? '<img src="' + p.imagens[0] + '" style="width:42px;height:42px;object-fit:cover;border-radius:5px">' : '-';
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + (p.sku || '-') + '</td><td>' + img + '</td><td>' + p.nome + '</td><td>' + p.categoria + '</td><td>R$ ' + parseFloat(p.preco).toFixed(2) + '</td><td>' + p.estoque + '</td><td><span class="badge ' + (p.ativo ? 'badge-success' : 'badge-danger') + '">' + (p.ativo ? 'Ativo' : 'Inativo') + '</span></td><td><button class="btn btn-sm btn-secondary" onclick="editarProduto('' + p._id + '')">Editar</button> <button class="btn btn-sm btn-danger" onclick="excluirProduto('' + p._id + '')">Excluir</button></td>';
+        const imgEl = p.imagens && p.imagens.length > 0 ? '<img src="' + p.imagens[0] + '" style="width:42px;height:42px;object-fit:cover;border-radius:5px">' : '-';
+    const tr = document.createElement('tr');
+    const badge = p.ativo ? 'badge-success' : 'badge-danger';
+    const status = p.ativo ? 'Ativo' : 'Inativo';
+    tr.innerHTML = '<td>' + (p.sku || '-') + '</td><td>' + imgEl + '</td><td>' + p.nome + '</td><td>' + p.categoria + '</td><td>R$ ' + parseFloat(p.preco).toFixed(2) + '</td><td>' + p.estoque + '</td><td><span class="badge ' + badge + '">' + status + '</span></td><td><button class="btn btn-sm btn-secondary" data-id="' + p._id + '" onclick="editarProduto(this.dataset.id)">Editar</button> <button class="btn btn-sm btn-danger" data-id="' + p._id + '" onclick="excluirProduto(this.dataset.id)">Excluir</button></td>';
     tb.appendChild(tr);
   });
 }
@@ -325,7 +329,8 @@ async function carregarClientes() {
   tb.innerHTML = '';
   (cls || []).forEach(c => {
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + c.nome + '</td><td>' + (c.email || '-') + '</td><td>' + (c.telefone || '-') + '</td><td><button class="btn btn-sm btn-secondary" onclick="editarCliente('' + c._id + '')">Editar</button> <button class="btn btn-sm btn-danger" onclick="excluirCliente('' + c._id + '')">Excluir</button></td>';
+        const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + c.nome + '</td><td>' + (c.email || '-') + '</td><td>' + (c.telefone || '-') + '</td><td><button class="btn btn-sm btn-secondary" data-id="' + c._id + '" onclick="editarCliente(this.dataset.id)">Editar</button> <button class="btn btn-sm btn-danger" data-id="' + c._id + '" onclick="excluirCliente(this.dataset.id)">Excluir</button></td>';
     tb.appendChild(tr);
   });
 }
@@ -340,7 +345,10 @@ async function carregarPedidos() {
   (peds || []).forEach(p => {
     const tr = document.createElement('tr');
     const d = new Date(p.criadoEm).toLocaleDateString('pt-BR');
-    tr.innerHTML = '<td>' + p._id.substring(0,8) + '...</td><td>' + (p.clienteNome || '-') + '</td><td>R$ ' + parseFloat(p.total || 0).toFixed(2) + '</td><td><span class="badge ' + (p.status === 'pendente' ? 'badge-warning' : 'badge-success') + '">' + p.status + '</span></td><td>' + d + '</td><td><button class="btn btn-sm btn-success" onclick="enviarOlist('' + p._id + '')">Olist</button></td>';
+        const tr = document.createElement('tr');
+    const d = new Date(p.criadoEm).toLocaleDateString('pt-BR');
+    const pBadge = p.status === 'pendente' ? 'badge-warning' : 'badge-success';
+    tr.innerHTML = '<td>' + p._id.substring(0,8) + '...</td><td>' + (p.clienteNome || '-') + '</td><td>R$ ' + parseFloat(p.total || 0).toFixed(2) + '</td><td><span class="badge ' + pBadge + '">' + p.status + '</span></td><td>' + d + '</td><td><button class="btn btn-sm btn-success" data-id="' + p._id + '" onclick="enviarOlist(this.dataset.id)">Olist</button></td>';
     tb.appendChild(tr);
   });
 }
